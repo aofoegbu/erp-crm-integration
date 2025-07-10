@@ -44,7 +44,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (ws.sessionId) {
         clients.delete(ws.sessionId);
         // Update chat session status
-        storage.updateChatSession(ws.sessionId, { status: 'ended', endedAt: new Date() });
+        storage.updateChatSession(ws.sessionId, { status: 'ended' });
       }
     });
   });

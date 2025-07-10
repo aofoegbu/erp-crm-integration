@@ -6,6 +6,8 @@ import {
   type IntegrationLog, type InsertIntegrationLog, type MaintenanceSchedule, type InsertMaintenance,
   type ApiMetric, type InsertApiMetric, type User, type InsertUser
 } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc, and } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -56,6 +58,7 @@ export interface IStorage {
   getMetricsBySystem(system: string): Promise<ApiMetric[]>;
 }
 
+// Legacy MemStorage class (kept for reference, not used)
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
   private customers: Map<number, Customer>;
@@ -367,4 +370,208 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Database Storage Implementation
+export class DatabaseStorage implements IStorage {
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async getCustomers(): Promise<Customer[]> {
+    return await db.select().from(customers).orderBy(desc(customers.createdAt));
+  }
+
+  async getCustomer(id: number): Promise<Customer | undefined> {
+    const [customer] = await db.select().from(customers).where(eq(customers.id, id));
+    return customer || undefined;
+  }
+
+  async createCustomer(insertCustomer: InsertCustomer): Promise<Customer> {
+    const [customer] = await db
+      .insert(customers)
+      .values(insertCustomer)
+      .returning();
+    return customer;
+  }
+
+  async updateCustomer(id: number, updateData: Partial<InsertCustomer>): Promise<Customer | undefined> {
+    const [customer] = await db
+      .update(customers)
+      .set(updateData)
+      .where(eq(customers.id, id))
+      .returning();
+    return customer || undefined;
+  }
+
+  async getTickets(): Promise<Ticket[]> {
+    return await db.select().from(tickets).orderBy(desc(tickets.createdAt));
+  }
+
+  async getTicket(id: number): Promise<Ticket | undefined> {
+    const [ticket] = await db.select().from(tickets).where(eq(tickets.id, id));
+    return ticket || undefined;
+  }
+
+  async getTicketByNumber(ticketNumber: string): Promise<Ticket | undefined> {
+    const [ticket] = await db.select().from(tickets).where(eq(tickets.ticketNumber, ticketNumber));
+    return ticket || undefined;
+  }
+
+  async createTicket(insertTicket: InsertTicket): Promise<Ticket> {
+    // Generate unique ticket number
+    const ticketCount = await db.select().from(tickets);
+    const ticketNumber = `TK${String(ticketCount.length + 1).padStart(3, '0')}`;
+    
+    const [ticket] = await db
+      .insert(tickets)
+      .values({ ...insertTicket, ticketNumber })
+      .returning();
+    return ticket;
+  }
+
+  async updateTicket(id: number, updateData: Partial<InsertTicket>): Promise<Ticket | undefined> {
+    const [ticket] = await db
+      .update(tickets)
+      .set({ ...updateData, updatedAt: new Date() })
+      .where(eq(tickets.id, id))
+      .returning();
+    return ticket || undefined;
+  }
+
+  async getTicketsByStatus(status: string): Promise<Ticket[]> {
+    return await db.select().from(tickets).where(eq(tickets.status, status));
+  }
+
+  async getTicketsByPriority(priority: string): Promise<Ticket[]> {
+    return await db.select().from(tickets).where(eq(tickets.priority, priority));
+  }
+
+  async getChatSessions(): Promise<ChatSession[]> {
+    return await db.select().from(chatSessions).orderBy(desc(chatSessions.createdAt));
+  }
+
+  async getChatSession(id: number): Promise<ChatSession | undefined> {
+    const [session] = await db.select().from(chatSessions).where(eq(chatSessions.id, id));
+    return session || undefined;
+  }
+
+  async createChatSession(insertSession: InsertChatSession): Promise<ChatSession> {
+    const [session] = await db
+      .insert(chatSessions)
+      .values(insertSession)
+      .returning();
+    return session;
+  }
+
+  async updateChatSession(id: number, updateData: Partial<InsertChatSession>): Promise<ChatSession | undefined> {
+    const [session] = await db
+      .update(chatSessions)
+      .set(updateData)
+      .where(eq(chatSessions.id, id))
+      .returning();
+    return session || undefined;
+  }
+
+  async getActiveChatSessions(): Promise<ChatSession[]> {
+    return await db.select().from(chatSessions).where(eq(chatSessions.status, 'active'));
+  }
+
+  async getChatMessages(sessionId: number): Promise<ChatMessage[]> {
+    return await db.select().from(chatMessages)
+      .where(eq(chatMessages.sessionId, sessionId))
+      .orderBy(chatMessages.timestamp);
+  }
+
+  async createChatMessage(insertMessage: InsertChatMessage): Promise<ChatMessage> {
+    const [message] = await db
+      .insert(chatMessages)
+      .values(insertMessage)
+      .returning();
+    return message;
+  }
+
+  async getIntegrationLogs(limit: number = 100): Promise<IntegrationLog[]> {
+    return await db.select().from(integrationLogs)
+      .orderBy(desc(integrationLogs.timestamp))
+      .limit(limit);
+  }
+
+  async createIntegrationLog(insertLog: InsertIntegrationLog): Promise<IntegrationLog> {
+    const [log] = await db
+      .insert(integrationLogs)
+      .values(insertLog)
+      .returning();
+    return log;
+  }
+
+  async getLogsBySystem(system: string): Promise<IntegrationLog[]> {
+    return await db.select().from(integrationLogs)
+      .where(eq(integrationLogs.system, system))
+      .orderBy(desc(integrationLogs.timestamp));
+  }
+
+  async getMaintenanceSchedule(): Promise<MaintenanceSchedule[]> {
+    return await db.select().from(maintenanceSchedule).orderBy(maintenanceSchedule.scheduledStart);
+  }
+
+  async createMaintenance(insertMaintenance: InsertMaintenance): Promise<MaintenanceSchedule> {
+    const [maintenance] = await db
+      .insert(maintenanceSchedule)
+      .values(insertMaintenance)
+      .returning();
+    return maintenance;
+  }
+
+  async updateMaintenance(id: number, updateData: Partial<InsertMaintenance>): Promise<MaintenanceSchedule | undefined> {
+    const [maintenance] = await db
+      .update(maintenanceSchedule)
+      .set(updateData)
+      .where(eq(maintenanceSchedule.id, id))
+      .returning();
+    return maintenance || undefined;
+  }
+
+  async getUpcomingMaintenance(): Promise<MaintenanceSchedule[]> {
+    return await db.select().from(maintenanceSchedule)
+      .where(and(
+        eq(maintenanceSchedule.status, 'scheduled'),
+        eq(maintenanceSchedule.scheduledStart, new Date())
+      ))
+      .orderBy(maintenanceSchedule.scheduledStart);
+  }
+
+  async getApiMetrics(limit: number = 1000): Promise<ApiMetric[]> {
+    return await db.select().from(apiMetrics)
+      .orderBy(desc(apiMetrics.timestamp))
+      .limit(limit);
+  }
+
+  async createApiMetric(insertMetric: InsertApiMetric): Promise<ApiMetric> {
+    const [metric] = await db
+      .insert(apiMetrics)
+      .values(insertMetric)
+      .returning();
+    return metric;
+  }
+
+  async getMetricsBySystem(system: string): Promise<ApiMetric[]> {
+    return await db.select().from(apiMetrics)
+      .where(eq(apiMetrics.system, system))
+      .orderBy(desc(apiMetrics.timestamp));
+  }
+}
+
+export const storage = new DatabaseStorage();
