@@ -25,10 +25,23 @@ export function TicketDetails({ ticket, customer, onClose }: TicketDetailsProps)
 
   const updateTicket = useMutation({
     mutationFn: async (updates: Partial<Ticket>) => {
-      return apiRequest('PUT', `/api/tickets/${ticket.id}`, updates);
+      console.log('Updating ticket with:', updates);
+      const response = await apiRequest('PUT', `/api/tickets/${ticket.id}`, updates);
+      const result = await response.json();
+      console.log('Update result:', result);
+      return result;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Mutation onSuccess called with:', data);
       queryClient.invalidateQueries({ queryKey: ['/api/tickets'] });
+    },
+    onError: (error) => {
+      console.error('Mutation error:', error);
+      toast({
+        title: "Update Failed",
+        description: "Failed to update ticket. Please try again.",
+        variant: "destructive"
+      });
     },
   });
 
@@ -51,28 +64,39 @@ export function TicketDetails({ ticket, customer, onClose }: TicketDetailsProps)
   };
 
   const handleStatusUpdate = (newStatus: string) => {
+    console.log('handleStatusUpdate called with:', newStatus);
     updateTicket.mutate({ status: newStatus }, {
       onSuccess: () => {
+        console.log('Status update onSuccess called');
         toast({
           title: "Status Updated",
           description: `Ticket status changed to ${newStatus}.`
         });
+      },
+      onError: (error) => {
+        console.error('Status update error:', error);
       }
     });
   };
 
   const handlePriorityUpdate = (newPriority: string) => {
+    console.log('handlePriorityUpdate called with:', newPriority);
     updateTicket.mutate({ priority: newPriority }, {
       onSuccess: () => {
+        console.log('Priority update onSuccess called');
         toast({
           title: "Priority Updated", 
           description: `Ticket priority changed to ${newPriority}.`
         });
+      },
+      onError: (error) => {
+        console.error('Priority update error:', error);
       }
     });
   };
 
   const handleAddComment = () => {
+    console.log('handleAddComment called with comment:', comment);
     if (!comment.trim()) {
       toast({
         title: "Comment Required",
@@ -91,6 +115,7 @@ export function TicketDetails({ ticket, customer, onClose }: TicketDetailsProps)
   };
 
   const handleReassign = () => {
+    console.log('handleReassign called, showReassignInput:', showReassignInput);
     if (!showReassignInput) {
       setShowReassignInput(true);
       return;
@@ -105,21 +130,27 @@ export function TicketDetails({ ticket, customer, onClose }: TicketDetailsProps)
       return;
     }
 
+    console.log('Reassigning to:', reassignAgent);
     updateTicket.mutate(
       { assignedTo: reassignAgent },
       {
         onSuccess: () => {
+          console.log('Reassign onSuccess called');
           toast({
             title: "Ticket Reassigned",
             description: `Ticket has been reassigned to ${reassignAgent}.`
           });
           setShowReassignInput(false);
+        },
+        onError: (error) => {
+          console.error('Reassign error:', error);
         }
       }
     );
   };
 
   const handleMarkResolved = () => {
+    console.log('handleMarkResolved called');
     updateTicket.mutate(
       { 
         status: 'resolved',
@@ -127,16 +158,21 @@ export function TicketDetails({ ticket, customer, onClose }: TicketDetailsProps)
       },
       {
         onSuccess: () => {
+          console.log('Mark resolved onSuccess called');
           toast({
             title: "Ticket Resolved",
             description: "The ticket has been marked as resolved."
           });
+        },
+        onError: (error) => {
+          console.error('Mark resolved error:', error);
         }
       }
     );
   };
 
   const handleEscalate = () => {
+    console.log('handleEscalate called');
     updateTicket.mutate(
       { 
         priority: 'critical',
@@ -144,10 +180,14 @@ export function TicketDetails({ ticket, customer, onClose }: TicketDetailsProps)
       },
       {
         onSuccess: () => {
+          console.log('Escalate onSuccess called');
           toast({
             title: "Ticket Escalated",
             description: "The ticket has been escalated to the senior support team."
           });
+        },
+        onError: (error) => {
+          console.error('Escalate error:', error);
         }
       }
     );
