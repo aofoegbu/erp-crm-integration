@@ -527,7 +527,7 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(maintenanceSchedule).orderBy(maintenanceSchedule.scheduledStart);
   }
 
-  async createMaintenance(insertMaintenance: InsertMaintenance): Promise<MaintenanceSchedule> {
+  async createMaintenance(insertMaintenance: any): Promise<MaintenanceSchedule> {
     const [maintenance] = await db
       .insert(maintenanceSchedule)
       .values(insertMaintenance)

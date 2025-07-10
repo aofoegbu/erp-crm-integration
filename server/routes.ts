@@ -567,7 +567,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/maintenance', async (req, res) => {
     try {
-      const maintenanceData = insertMaintenanceSchema.parse(req.body);
+      // Skip Drizzle validation and manually validate required fields
+      const { title, description, system, scheduledStart, scheduledEnd, estimatedDowntime, approvedBy } = req.body;
+      
+      if (!title || !system || !scheduledStart || !scheduledEnd) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+      
+      // Create maintenance data with proper date conversion
+      const maintenanceData = {
+        title,
+        description: description || null,
+        system,
+        scheduledStart: new Date(scheduledStart),
+        scheduledEnd: new Date(scheduledEnd),
+        status: 'scheduled',
+        estimatedDowntime: estimatedDowntime || null,
+        approvedBy: approvedBy || null
+      };
+      
       const maintenance = await storage.createMaintenance(maintenanceData);
       
       // Log maintenance scheduling

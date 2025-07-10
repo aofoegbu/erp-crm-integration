@@ -36,14 +36,20 @@ export function ScheduleMaintenanceModal({ isOpen, onClose }: ScheduleMaintenanc
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Generate default start time (next hour)
+  const now = new Date();
+  const nextHour = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours() + 1, 0);
+  const defaultStart = nextHour.toISOString().slice(0, 16);
+  const defaultEnd = new Date(nextHour.getTime() + 60 * 60 * 1000).toISOString().slice(0, 16);
+
   const form = useForm<FormData>({
     resolver: zodResolver(scheduleMaintenanceSchema),
     defaultValues: {
       title: '',
       description: '',
       system: 'integration',
-      scheduledStart: '',
-      scheduledEnd: '',
+      scheduledStart: defaultStart,
+      scheduledEnd: defaultEnd,
       estimatedDowntime: 30,
       approvedBy: 'Admin User'
     }
@@ -53,8 +59,8 @@ export function ScheduleMaintenanceModal({ isOpen, onClose }: ScheduleMaintenanc
     mutationFn: async (data: FormData) => {
       const maintenanceData = {
         ...data,
-        scheduledStart: new Date(data.scheduledStart),
-        scheduledEnd: new Date(data.scheduledEnd),
+        scheduledStart: data.scheduledStart,
+        scheduledEnd: data.scheduledEnd,
         status: 'scheduled'
       };
       
@@ -85,19 +91,7 @@ export function ScheduleMaintenanceModal({ isOpen, onClose }: ScheduleMaintenanc
 
   if (!isOpen) return null;
 
-  // Generate default start time (next hour)
-  const now = new Date();
-  const nextHour = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours() + 1, 0);
-  const defaultStart = nextHour.toISOString().slice(0, 16);
-  const defaultEnd = new Date(nextHour.getTime() + 60 * 60 * 1000).toISOString().slice(0, 16);
 
-  // Set default values if form is empty
-  if (!form.getValues().scheduledStart) {
-    form.setValue('scheduledStart', defaultStart);
-  }
-  if (!form.getValues().scheduledEnd) {
-    form.setValue('scheduledEnd', defaultEnd);
-  }
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
