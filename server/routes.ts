@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { GoogleGenAI } from "@google/genai";
 import { storage } from "./storage";
-import { insertTicketSchema, insertChatSessionSchema, insertChatMessageSchema, insertIntegrationLogSchema } from "@shared/schema";
+import { insertTicketSchema, insertChatSessionSchema, insertChatMessageSchema, insertIntegrationLogSchema, insertMaintenanceSchema } from "@shared/schema";
 import { z } from "zod";
 
 // Using Google Gemini AI as a free alternative
@@ -562,6 +562,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(maintenance);
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch maintenance schedule' });
+    }
+  });
+
+  app.post('/api/maintenance', async (req, res) => {
+    try {
+      const maintenanceData = insertMaintenanceSchema.parse(req.body);
+      const maintenance = await storage.createMaintenance(maintenanceData);
+      
+      // Log maintenance scheduling
+      await storage.createIntegrationLog({
+        system: 'integration',
+        action: 'maintenance_scheduled',
+        status: 'info',
+        message: `Maintenance scheduled for ${maintenanceData.system} system: ${maintenanceData.title}`,
+        metadata: { maintenanceId: maintenance.id, system: maintenanceData.system }
+      });
+
+      res.status(201).json(maintenance);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Invalid maintenance data', details: error.errors });
+      }
+      res.status(500).json({ error: 'Failed to schedule maintenance' });
     }
   });
 
