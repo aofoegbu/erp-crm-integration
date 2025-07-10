@@ -14,7 +14,7 @@ export default function Logs() {
   const logContainerRef = useRef<HTMLDivElement>(null);
 
   const { data: logs = [], refetch } = useQuery<IntegrationLog[]>({
-    queryKey: ['/api/logs', { limit: 1000 }],
+    queryKey: ['/api/logs'],
     refetchInterval: 5000, // Refresh every 5 seconds
   });
 

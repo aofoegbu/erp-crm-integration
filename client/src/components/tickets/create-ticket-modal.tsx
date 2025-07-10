@@ -31,10 +31,7 @@ export function CreateTicketModal({ isOpen, onClose }: CreateTicketModalProps) {
 
   const createTicketMutation = useMutation({
     mutationFn: async (ticketData: any) => {
-      return apiRequest('/api/tickets', {
-        method: 'POST',
-        body: JSON.stringify(ticketData),
-      });
+      return apiRequest('POST', '/api/tickets', ticketData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/tickets'] });

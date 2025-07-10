@@ -58,10 +58,7 @@ export function ScheduleMaintenanceModal({ isOpen, onClose }: ScheduleMaintenanc
         status: 'scheduled'
       };
       
-      return apiRequest('/api/maintenance', {
-        method: 'POST',
-        body: JSON.stringify(maintenanceData),
-      });
+      return apiRequest('POST', '/api/maintenance', maintenanceData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/maintenance'] });
