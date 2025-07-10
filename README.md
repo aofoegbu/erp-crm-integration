@@ -2,6 +2,10 @@
 
 A comprehensive ERP/CRM integration platform with AI-powered customer support, real-time monitoring, and intelligent ticket management. Built with modern web technologies and featuring a free Google Gemini AI chatbot.
 
+https://erp-crm-integrator-augustineogelo.replit.app/
+
+![Ogelo Water Utility Dashboard](screenshots/dashboard.png)
+
 ![Dashboard Preview](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue)
 ![React](https://img.shields.io/badge/React-18+-blue)
