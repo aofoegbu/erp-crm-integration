@@ -1,17 +1,23 @@
 import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { MessageCircle, Plus, Video, Phone, Info, UserPlus } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { MessageCircle, Plus, Video, Phone, Info, UserPlus, X } from 'lucide-react';
 import { GlassmorphismCard } from '@/components/ui/glassmorphism-card';
 import { StatusIndicator } from '@/components/ui/status-indicator';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChatInterface } from '@/components/chat/chat-interface';
 import { useWebSocket } from '@/hooks/use-websocket';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
 import type { ChatSession, Customer } from '@shared/schema';
 
 export default function Chat() {
   const [selectedSession, setSelectedSession] = useState<ChatSession | null>(null);
   const [showNewChatDialog, setShowNewChatDialog] = useState(false);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
   const { sendMessage, subscribe } = useWebSocket();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: chatSessions = [] } = useQuery<ChatSession[]>({
     queryKey: ['/api/chat-sessions'],
@@ -25,6 +31,48 @@ export default function Chat() {
   const getCustomerById = (id: number) => customers.find(c => c.id === id);
 
   const activeSessions = chatSessions.filter(session => session.status === 'active');
+
+  const createChatMutation = useMutation({
+    mutationFn: async (customerId: number) => {
+      return apiRequest('POST', '/api/chat-sessions', {
+        customerId,
+        status: 'active',
+        isAIActive: true
+      });
+    },
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/chat-sessions'] });
+      toast({
+        title: "Chat Started",
+        description: "New chat session has been created successfully"
+      });
+      setShowNewChatDialog(false);
+      setSelectedCustomerId('');
+      // Automatically select the new session
+      response.json().then((newSession) => {
+        setSelectedSession(newSession);
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to start chat session. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const handleStartChat = () => {
+    if (!selectedCustomerId) {
+      toast({
+        title: "Validation Error",
+        description: "Please select a customer to start the chat",
+        variant: "destructive"
+      });
+      return;
+    }
+    createChatMutation.mutate(parseInt(selectedCustomerId));
+  };
 
   useEffect(() => {
     const unsubscribe = subscribe('session_update', (data: any) => {
@@ -189,6 +237,78 @@ export default function Chat() {
           Customer Info
         </Button>
       </div>
+
+      {/* New Chat Dialog */}
+      {showNewChatDialog && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-slate-800 rounded-lg p-6 w-full max-w-md mx-4">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-white">Start New Chat</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setShowNewChatDialog(false);
+                  setSelectedCustomerId('');
+                }}
+                className="text-slate-400 hover:text-white"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Select Customer
+                </label>
+                <Select value={selectedCustomerId} onValueChange={setSelectedCustomerId}>
+                  <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+                    <SelectValue placeholder="Choose a customer..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {customers.map((customer) => (
+                      <SelectItem key={customer.id} value={customer.id.toString()}>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                            <span className="text-xs text-white font-medium">
+                              {customer.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
+                            </span>
+                          </div>
+                          <div>
+                            <div className="font-medium">{customer.name}</div>
+                            <div className="text-sm text-slate-400">{customer.company}</div>
+                          </div>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex space-x-3 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowNewChatDialog(false);
+                    setSelectedCustomerId('');
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleStartChat}
+                  disabled={createChatMutation.isPending}
+                  className="flex-1 bg-electric-blue hover:bg-blue-600"
+                >
+                  {createChatMutation.isPending ? 'Starting...' : 'Start Chat'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -24,7 +24,8 @@ export default function Tickets() {
   };
 
   const { data: tickets = [] } = useQuery<Ticket[]>({
-    queryKey: ['/api/tickets', { status: statusFilter !== 'all' ? statusFilter : undefined, priority: priorityFilter !== 'all' ? priorityFilter : undefined, search: searchQuery || undefined }],
+    queryKey: ['/api/tickets'],
+    refetchInterval: 30000, // Refresh every 30 seconds
   });
 
   const { data: customers = [] } = useQuery<Customer[]>({
