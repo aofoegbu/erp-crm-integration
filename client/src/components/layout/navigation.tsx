@@ -11,6 +11,7 @@ import {
   User
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { NotificationSystem } from "../ui/notification-system";
 
 export default function Navigation() {
   const [location] = useLocation();
@@ -45,10 +46,7 @@ export default function Navigation() {
               <span>{new Date().toLocaleTimeString()}</span>
             </div>
             <div className="flex items-center space-x-2">
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell className="h-4 w-4" />
-                <div className="absolute -top-1 -right-1 w-2 h-2 bg-neon-green rounded-full"></div>
-              </Button>
+              <NotificationSystem />
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-gradient-to-r from-electric-blue to-neon-green rounded-full flex items-center justify-center">
                   <User className="h-4 w-4 text-white" />

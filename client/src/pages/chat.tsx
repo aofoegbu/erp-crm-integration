@@ -10,6 +10,7 @@ import type { ChatSession, Customer } from '@shared/schema';
 
 export default function Chat() {
   const [selectedSession, setSelectedSession] = useState<ChatSession | null>(null);
+  const [showNewChatDialog, setShowNewChatDialog] = useState(false);
   const { sendMessage, subscribe } = useWebSocket();
 
   const { data: chatSessions = [] } = useQuery<ChatSession[]>({
@@ -127,7 +128,10 @@ export default function Chat() {
               )}
             </div>
 
-            <Button className="w-full mt-4 bg-electric-blue/20 text-electric-blue border border-electric-blue/30 hover:bg-electric-blue/30">
+            <Button 
+              className="w-full mt-4 bg-electric-blue/20 text-electric-blue border border-electric-blue/30 hover:bg-electric-blue/30"
+              onClick={() => setShowNewChatDialog(true)}
+            >
               <Plus className="mr-2 h-4 w-4" />
               Start New Chat
             </Button>
@@ -152,7 +156,10 @@ export default function Chat() {
                   <MessageCircle className="h-16 w-16 text-slate-400 mx-auto mb-4" />
                   <h3 className="text-xl font-medium text-white mb-2">Select a chat session</h3>
                   <p className="text-slate-400 mb-6">Choose an active chat from the sidebar to start conversation</p>
-                  <Button className="bg-electric-blue hover:bg-blue-600">
+                  <Button 
+                    className="bg-electric-blue hover:bg-blue-600"
+                    onClick={() => setShowNewChatDialog(true)}
+                  >
                     <Plus className="mr-2 h-4 w-4" />
                     Start New Chat
                   </Button>
