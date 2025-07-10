@@ -51,10 +51,7 @@ export default function Dashboard() {
   };
 
   const handleScheduleMaintenance = () => {
-    toast({
-      title: "Maintenance Scheduler",
-      description: "Opening maintenance scheduling interface..."
-    });
+    setLocation('/integrations');
   };
 
   return (
