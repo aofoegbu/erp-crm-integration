@@ -1,0 +1,186 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+  --radius: 0.5rem;
+
+  /* Custom ERP theme colors */
+  --electric-blue: hsl(207, 90%, 54%);
+  --neon-green: hsl(142, 76%, 36%);
+  --dark-navy: hsl(222, 84%, 4.9%);
+  --dark-slate: hsl(215, 28%, 17%);
+  --glass-bg: hsla(215, 28%, 17%, 0.8);
+  --glass-border: hsla(207, 90%, 54%, 0.2);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-dark-navy text-foreground;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  .glass-effect {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px hsla(207, 90%, 54%, 0.1);
+  }
+
+  .glow-effect {
+    box-shadow: 0 0 20px hsla(207, 90%, 54%, 0.3);
+  }
+
+  .status-dot {
+    @apply w-2 h-2 rounded-full;
+  }
+
+  .status-online {
+    @apply bg-neon-green;
+    animation: pulse 2s infinite;
+  }
+
+  .status-warning {
+    @apply bg-yellow-400;
+  }
+
+  .status-error {
+    @apply bg-red-400;
+  }
+
+  .terminal-font {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  }
+
+  .nav-tab {
+    @apply px-4 py-3 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-white transition-colors;
+  }
+
+  .nav-tab.active {
+    @apply border-electric-blue text-electric-blue;
+  }
+}
+
+@layer utilities {
+  .bg-electric-blue {
+    background-color: var(--electric-blue);
+  }
+
+  .bg-neon-green {
+    background-color: var(--neon-green);
+  }
+
+  .bg-dark-navy {
+    background-color: var(--dark-navy);
+  }
+
+  .bg-dark-slate {
+    background-color: var(--dark-slate);
+  }
+
+  .text-electric-blue {
+    color: var(--electric-blue);
+  }
+
+  .text-neon-green {
+    color: var(--neon-green);
+  }
+
+  .border-electric-blue {
+    border-color: var(--electric-blue);
+  }
+
+  .border-neon-green {
+    border-color: var(--neon-green);
+  }
+}
+
+/* Custom animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(240, 3.7%, 15.9%);
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(207, 90%, 54%);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(207, 90%, 64%);
+}
