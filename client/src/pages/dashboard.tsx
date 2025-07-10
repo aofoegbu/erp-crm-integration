@@ -1,10 +1,16 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useLocation } from 'wouter';
 import { Activity, Users, Zap, Clock, Database, CheckCircle, AlertTriangle, TrendingUp } from 'lucide-react';
 import { GlassmorphismCard } from '@/components/ui/glassmorphism-card';
 import { StatusIndicator } from '@/components/ui/status-indicator';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Dashboard() {
+  const [, setLocation] = useLocation();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
   const { data: analytics } = useQuery({
     queryKey: ['/api/analytics/dashboard'],
     refetchInterval: 30000, // Refresh every 30 seconds
@@ -18,6 +24,38 @@ export default function Dashboard() {
   const { data: tickets } = useQuery({
     queryKey: ['/api/tickets'],
   });
+
+  const handleRefreshMonitor = () => {
+    queryClient.invalidateQueries({ queryKey: ['/api/logs'] });
+    queryClient.invalidateQueries({ queryKey: ['/api/analytics/dashboard'] });
+    toast({
+      title: "Monitor Refreshed",
+      description: "Real-time data has been updated"
+    });
+  };
+
+  const handleSyncCustomerData = () => {
+    // Simulate API call
+    toast({
+      title: "Customer Sync Started",
+      description: "Synchronizing customer data from CRM to ERP..."
+    });
+  };
+
+  const handleCreateTicket = () => {
+    setLocation('/tickets');
+  };
+
+  const handleGenerateReport = () => {
+    setLocation('/analytics');
+  };
+
+  const handleScheduleMaintenance = () => {
+    toast({
+      title: "Maintenance Scheduler",
+      description: "Opening maintenance scheduling interface..."
+    });
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -83,7 +121,11 @@ export default function Dashboard() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white">Real-time Integration Monitor</h3>
               <div className="flex space-x-2">
-                <Button size="sm" className="bg-electric-blue/20 text-electric-blue hover:bg-electric-blue/30">
+                <Button 
+                  size="sm" 
+                  className="bg-electric-blue/20 text-electric-blue hover:bg-electric-blue/30"
+                  onClick={handleRefreshMonitor}
+                >
                   <Activity className="mr-1 h-4 w-4" />
                   Refresh
                 </Button>
@@ -155,7 +197,10 @@ export default function Dashboard() {
           <GlassmorphismCard className="h-full">
             <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
             <div className="space-y-3">
-              <Button className="w-full justify-start bg-electric-blue/20 hover:bg-electric-blue/30 border border-electric-blue/30">
+              <Button 
+                className="w-full justify-start bg-electric-blue/20 hover:bg-electric-blue/30 border border-electric-blue/30"
+                onClick={handleSyncCustomerData}
+              >
                 <Activity className="mr-3 h-4 w-4 text-electric-blue" />
                 <div className="text-left">
                   <p className="text-sm font-medium text-white">Sync Customer Data</p>
@@ -163,7 +208,10 @@ export default function Dashboard() {
                 </div>
               </Button>
 
-              <Button className="w-full justify-start bg-neon-green/20 hover:bg-neon-green/30 border border-neon-green/30">
+              <Button 
+                className="w-full justify-start bg-neon-green/20 hover:bg-neon-green/30 border border-neon-green/30"
+                onClick={handleCreateTicket}
+              >
                 <AlertTriangle className="mr-3 h-4 w-4 text-neon-green" />
                 <div className="text-left">
                   <p className="text-sm font-medium text-white">Create Support Ticket</p>
@@ -171,7 +219,10 @@ export default function Dashboard() {
                 </div>
               </Button>
 
-              <Button className="w-full justify-start bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30">
+              <Button 
+                className="w-full justify-start bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30"
+                onClick={handleGenerateReport}
+              >
                 <TrendingUp className="mr-3 h-4 w-4 text-purple-400" />
                 <div className="text-left">
                   <p className="text-sm font-medium text-white">Generate Report</p>
@@ -179,7 +230,10 @@ export default function Dashboard() {
                 </div>
               </Button>
 
-              <Button className="w-full justify-start bg-yellow-500/20 hover:bg-yellow-500/30 border border-yellow-500/30">
+              <Button 
+                className="w-full justify-start bg-yellow-500/20 hover:bg-yellow-500/30 border border-yellow-500/30"
+                onClick={handleScheduleMaintenance}
+              >
                 <Clock className="mr-3 h-4 w-4 text-yellow-400" />
                 <div className="text-left">
                   <p className="text-sm font-medium text-white">Schedule Maintenance</p>

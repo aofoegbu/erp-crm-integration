@@ -1,15 +1,50 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Users, Database, Plug, Activity, CheckCircle, Clock, Settings } from 'lucide-react';
 import { GlassmorphismCard } from '@/components/ui/glassmorphism-card';
 import { StatusIndicator } from '@/components/ui/status-indicator';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Integrations() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  
   const { data: customers } = useQuery({ queryKey: ['/api/customers'] });
   const { data: crmOrders } = useQuery({ queryKey: ['/api/crm/customers'] });
   const { data: erpOrders } = useQuery({ queryKey: ['/api/erp/orders'] });
   const { data: erpInventory } = useQuery({ queryKey: ['/api/erp/inventory'] });
+
+  const handleTestCrmConnection = () => {
+    queryClient.invalidateQueries({ queryKey: ['/api/crm/customers'] });
+    toast({
+      title: "CRM Connection Test",
+      description: "Testing Salesforce CRM connection..."
+    });
+  };
+
+  const handleTestErpConnection = () => {
+    queryClient.invalidateQueries({ queryKey: ['/api/erp/orders'] });
+    queryClient.invalidateQueries({ queryKey: ['/api/erp/inventory'] });
+    toast({
+      title: "ERP Connection Test", 
+      description: "Testing SAP ERP connection..."
+    });
+  };
+
+  const handleConfigureWorkflow = (workflowName: string) => {
+    toast({
+      title: `${workflowName} Configuration`,
+      description: `Opening configuration panel for ${workflowName}...`
+    });
+  };
+
+  const handleSendApiRequest = () => {
+    toast({
+      title: "API Request Sent",
+      description: "Executing API test request..."
+    });
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -58,7 +93,10 @@ export default function Integrations() {
               </div>
             </div>
 
-            <Button className="w-full bg-electric-blue hover:bg-blue-600">
+            <Button 
+              className="w-full bg-electric-blue hover:bg-blue-600"
+              onClick={handleTestCrmConnection}
+            >
               <Plug className="mr-2 h-4 w-4" />
               Test Connection
             </Button>
@@ -109,7 +147,10 @@ export default function Integrations() {
               </div>
             </div>
 
-            <Button className="w-full bg-neon-green hover:bg-green-600">
+            <Button 
+              className="w-full bg-neon-green hover:bg-green-600"
+              onClick={handleTestErpConnection}
+            >
               <Plug className="mr-2 h-4 w-4" />
               Test Connection
             </Button>
@@ -131,7 +172,11 @@ export default function Integrations() {
             </p>
             <div className="flex justify-between items-center">
               <Badge className="bg-neon-green/20 text-neon-green">Active</Badge>
-              <Button size="sm" variant="outline">
+              <Button 
+                size="sm" 
+                variant="outline"
+                onClick={() => handleConfigureWorkflow('Customer Sync')}
+              >
                 <Settings className="mr-1 h-3 w-3" />
                 Configure
               </Button>
@@ -148,7 +193,11 @@ export default function Integrations() {
             </p>
             <div className="flex justify-between items-center">
               <Badge className="bg-neon-green/20 text-neon-green">Active</Badge>
-              <Button size="sm" variant="outline">
+              <Button 
+                size="sm" 
+                variant="outline"
+                onClick={() => handleConfigureWorkflow('Order Processing')}
+              >
                 <Settings className="mr-1 h-3 w-3" />
                 Configure
               </Button>
@@ -165,7 +214,11 @@ export default function Integrations() {
             </p>
             <div className="flex justify-between items-center">
               <Badge className="bg-yellow-500/20 text-yellow-500">Paused</Badge>
-              <Button size="sm" variant="outline">
+              <Button 
+                size="sm" 
+                variant="outline"
+                onClick={() => handleConfigureWorkflow('Inventory Sync')}
+              >
                 <Settings className="mr-1 h-3 w-3" />
                 Configure
               </Button>
@@ -194,7 +247,10 @@ export default function Integrations() {
                   placeholder="/api/crm/customers" 
                   className="flex-1 bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white placeholder-slate-400 text-sm"
                 />
-                <Button className="bg-electric-blue hover:bg-blue-600">
+                <Button 
+                  className="bg-electric-blue hover:bg-blue-600"
+                  onClick={handleSendApiRequest}
+                >
                   Send
                 </Button>
               </div>

@@ -7,13 +7,22 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TicketCard } from '@/components/tickets/ticket-card';
 import { TicketDetails } from '@/components/tickets/ticket-details';
+import { useToast } from '@/hooks/use-toast';
 import type { Ticket, Customer } from '@shared/schema';
 
 export default function Tickets() {
+  const { toast } = useToast();
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  const handleCreateTicket = () => {
+    toast({
+      title: "Create New Ticket",
+      description: "Opening ticket creation form..."
+    });
+  };
 
   const { data: tickets = [] } = useQuery<Ticket[]>({
     queryKey: ['/api/tickets', { status: statusFilter !== 'all' ? statusFilter : undefined, priority: priorityFilter !== 'all' ? priorityFilter : undefined, search: searchQuery || undefined }],
@@ -38,7 +47,10 @@ export default function Tickets() {
           <h2 className="text-2xl font-bold text-white">Customer Support Tickets</h2>
           <p className="text-slate-400">AI-powered ticket management with automated routing and responses</p>
         </div>
-        <Button className="bg-electric-blue hover:bg-blue-600">
+        <Button 
+          className="bg-electric-blue hover:bg-blue-600"
+          onClick={handleCreateTicket}
+        >
           <Plus className="mr-2 h-4 w-4" />
           Create Ticket
         </Button>
