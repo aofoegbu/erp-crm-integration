@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TicketCard } from '@/components/tickets/ticket-card';
 import { TicketDetails } from '@/components/tickets/ticket-details';
+import { CreateTicketModal } from '@/components/tickets/create-ticket-modal';
 import { useToast } from '@/hooks/use-toast';
 import type { Ticket, Customer } from '@shared/schema';
 
@@ -16,12 +17,10 @@ export default function Tickets() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
 
   const handleCreateTicket = () => {
-    toast({
-      title: "Create New Ticket",
-      description: "Opening ticket creation form..."
-    });
+    setShowCreateModal(true);
   };
 
   const { data: tickets = [] } = useQuery<Ticket[]>({
@@ -190,6 +189,11 @@ export default function Tickets() {
           </GlassmorphismCard>
         </div>
       </div>
+
+      <CreateTicketModal 
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+      />
     </div>
   );
 }
