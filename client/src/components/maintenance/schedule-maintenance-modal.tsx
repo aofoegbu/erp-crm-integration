@@ -53,8 +53,8 @@ export function ScheduleMaintenanceModal({ isOpen, onClose }: ScheduleMaintenanc
     mutationFn: async (data: FormData) => {
       const maintenanceData = {
         ...data,
-        scheduledStart: new Date(data.scheduledStart).toISOString(),
-        scheduledEnd: new Date(data.scheduledEnd).toISOString(),
+        scheduledStart: new Date(data.scheduledStart),
+        scheduledEnd: new Date(data.scheduledEnd),
         status: 'scheduled'
       };
       
@@ -90,6 +90,14 @@ export function ScheduleMaintenanceModal({ isOpen, onClose }: ScheduleMaintenanc
   const nextHour = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours() + 1, 0);
   const defaultStart = nextHour.toISOString().slice(0, 16);
   const defaultEnd = new Date(nextHour.getTime() + 60 * 60 * 1000).toISOString().slice(0, 16);
+
+  // Set default values if form is empty
+  if (!form.getValues().scheduledStart) {
+    form.setValue('scheduledStart', defaultStart);
+  }
+  if (!form.getValues().scheduledEnd) {
+    form.setValue('scheduledEnd', defaultEnd);
+  }
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
