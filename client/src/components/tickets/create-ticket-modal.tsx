@@ -73,10 +73,16 @@ export function CreateTicketModal({ isOpen, onClose }: CreateTicketModalProps) {
       return;
     }
 
-    createTicketMutation.mutate({
-      ...formData,
+    const ticketData = {
+      title: formData.title,
+      description: formData.description,
+      category: formData.category,
+      priority: formData.priority,
       customerId: parseInt(formData.customerId),
-    });
+      status: 'open'
+    };
+
+    createTicketMutation.mutate(ticketData);
   };
 
   if (!isOpen) return null;

@@ -1,12 +1,15 @@
+import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Users, Database, Plug, Activity, CheckCircle, Clock, Settings } from 'lucide-react';
+import { Users, Database, Plug, Activity, CheckCircle, Clock, Settings, Plus, Calendar } from 'lucide-react';
 import { GlassmorphismCard } from '@/components/ui/glassmorphism-card';
 import { StatusIndicator } from '@/components/ui/status-indicator';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { ScheduleMaintenanceModal } from '@/components/maintenance/schedule-maintenance-modal';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Integrations() {
+  const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
   
@@ -48,6 +51,20 @@ export default function Integrations() {
 
   return (
     <div className="p-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-white">System Integrations</h2>
+          <p className="text-slate-400">Manage CRM and ERP connections with automated workflows</p>
+        </div>
+        <Button 
+          className="bg-electric-blue hover:bg-blue-600"
+          onClick={() => setShowMaintenanceModal(true)}
+        >
+          <Calendar className="mr-2 h-4 w-4" />
+          Schedule Maintenance
+        </Button>
+      </div>
       <div className="grid grid-cols-2 gap-6">
         {/* CRM Integration Panel */}
         <GlassmorphismCard>
@@ -290,6 +307,11 @@ export default function Integrations() {
           </div>
         </div>
       </GlassmorphismCard>
+
+      <ScheduleMaintenanceModal 
+        isOpen={showMaintenanceModal}
+        onClose={() => setShowMaintenanceModal(false)}
+      />
     </div>
   );
 }
