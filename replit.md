@@ -1,4 +1,4 @@
-# Integration Command Center - Replit Configuration
+# Ogelo ERP-CRM Integrator - Replit Configuration
 
 ## Overview
 

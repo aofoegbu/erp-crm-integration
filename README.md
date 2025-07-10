@@ -1,4 +1,4 @@
-# ERP/CRM Integration Command Center
+# Ogelo ERP-CRM Integrator
 
 A comprehensive ERP/CRM integration platform with AI-powered customer support, real-time monitoring, and intelligent ticket management. Built with modern web technologies and featuring a free Google Gemini AI chatbot.
 

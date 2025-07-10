@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Comprehensive functionality test for ERP/CRM Integration Command Center
+ * Comprehensive functionality test for Ogelo ERP-CRM Integrator
  * Tests all major features including API endpoints, WebSocket, and AI functionality
  */
 

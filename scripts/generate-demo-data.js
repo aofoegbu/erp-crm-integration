@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Comprehensive demo data generator for ERP/CRM Integration Command Center
+ * Comprehensive demo data generator for Ogelo ERP-CRM Integrator
  * Creates realistic test data for all system components
  */
 

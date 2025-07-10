@@ -33,7 +33,7 @@ export default function Navigation() {
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <Network className="text-electric-blue text-xl" />
-              <h1 className="text-xl font-bold text-white">Integration Command Center</h1>
+              <h1 className="text-xl font-bold text-white">Ogelo ERP-CRM Integrator</h1>
             </div>
             <div className="flex items-center space-x-1 ml-8">
               <div className="w-2 h-2 rounded-full bg-neon-green status-online"></div>
