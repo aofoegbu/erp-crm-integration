@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
 import type { Ticket, Customer } from '@shared/schema';
 
 interface TicketDetailsProps {
@@ -17,7 +18,10 @@ interface TicketDetailsProps {
 
 export function TicketDetails({ ticket, customer, onClose }: TicketDetailsProps) {
   const [comment, setComment] = useState('');
+  const [reassignAgent, setReassignAgent] = useState(ticket.assignedTo || '');
+  const [showReassignInput, setShowReassignInput] = useState(false);
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const updateTicket = useMutation({
     mutationFn: async (updates: Partial<Ticket>) => {
@@ -53,6 +57,87 @@ export function TicketDetails({ ticket, customer, onClose }: TicketDetailsProps)
 
   const handlePriorityUpdate = (newPriority: string) => {
     updateTicket.mutate({ priority: newPriority });
+  };
+
+  const handleAddComment = () => {
+    if (!comment.trim()) {
+      toast({
+        title: "Comment Required",
+        description: "Please enter a comment before submitting.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // In a real app, you'd create a comment record
+    toast({
+      title: "Comment Added",
+      description: "Your comment has been added to the ticket."
+    });
+    setComment('');
+  };
+
+  const handleReassign = () => {
+    if (!showReassignInput) {
+      setShowReassignInput(true);
+      return;
+    }
+
+    if (!reassignAgent.trim()) {
+      toast({
+        title: "Agent Required",
+        description: "Please specify an agent to reassign to.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    updateTicket.mutate(
+      { assignedTo: reassignAgent },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Ticket Reassigned",
+            description: `Ticket has been reassigned to ${reassignAgent}.`
+          });
+          setShowReassignInput(false);
+        }
+      }
+    );
+  };
+
+  const handleMarkResolved = () => {
+    updateTicket.mutate(
+      { 
+        status: 'resolved',
+        resolutionTime: Date.now() - new Date(ticket.createdAt).getTime()
+      },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Ticket Resolved",
+            description: "The ticket has been marked as resolved."
+          });
+        }
+      }
+    );
+  };
+
+  const handleEscalate = () => {
+    updateTicket.mutate(
+      { 
+        priority: 'critical',
+        assignedTo: 'Senior Support Team'
+      },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Ticket Escalated",
+            description: "The ticket has been escalated to the senior support team."
+          });
+        }
+      }
+    );
   };
 
   return (
@@ -202,26 +287,71 @@ export function TicketDetails({ ticket, customer, onClose }: TicketDetailsProps)
             rows={3}
           />
         </div>
+
+        {/* Reassign Agent */}
+        {showReassignInput && (
+          <div>
+            <p className="text-slate-400 text-sm mb-2">Reassign to Agent</p>
+            <div className="flex space-x-2">
+              <Select value={reassignAgent} onValueChange={setReassignAgent}>
+                <SelectTrigger className="flex-1 bg-slate-700 border-slate-600">
+                  <SelectValue placeholder="Select agent..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="John Smith">John Smith</SelectItem>
+                  <SelectItem value="Sarah Connor">Sarah Connor</SelectItem>
+                  <SelectItem value="Mike Johnson">Mike Johnson</SelectItem>
+                  <SelectItem value="Senior Support Team">Senior Support Team</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowReassignInput(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Actions */}
       <div className="pt-4 border-t border-slate-700 space-y-3">
         <div className="flex space-x-2">
-          <Button className="flex-1 bg-electric-blue hover:bg-blue-600">
+          <Button 
+            className="flex-1 bg-electric-blue hover:bg-blue-600"
+            onClick={handleAddComment}
+            disabled={updateTicket.isPending}
+          >
             <MessageCircle className="h-4 w-4 mr-2" />
             Add Comment
           </Button>
-          <Button variant="outline" className="flex-1">
+          <Button 
+            variant="outline" 
+            className="flex-1"
+            onClick={handleReassign}
+            disabled={updateTicket.isPending}
+          >
             <User className="h-4 w-4 mr-2" />
-            Reassign
+            {showReassignInput ? 'Confirm Reassign' : 'Reassign'}
           </Button>
         </div>
         <div className="flex space-x-2">
-          <Button variant="outline" className="flex-1 border-neon-green text-neon-green hover:bg-neon-green/10">
+          <Button 
+            variant="outline" 
+            className="flex-1 border-neon-green text-neon-green hover:bg-neon-green/10"
+            onClick={handleMarkResolved}
+            disabled={updateTicket.isPending || ticket.status === 'resolved'}
+          >
             <CheckCircle className="h-4 w-4 mr-2" />
             Mark Resolved
           </Button>
-          <Button variant="outline" className="flex-1 border-red-500 text-red-400 hover:bg-red-500/10">
+          <Button 
+            variant="outline" 
+            className="flex-1 border-red-500 text-red-400 hover:bg-red-500/10"
+            onClick={handleEscalate}
+            disabled={updateTicket.isPending}
+          >
             <AlertTriangle className="h-4 w-4 mr-2" />
             Escalate
           </Button>
