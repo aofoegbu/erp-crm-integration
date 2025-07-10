@@ -25,8 +25,7 @@ export function TicketDetails({ ticket, customer, onClose }: TicketDetailsProps)
 
   const updateTicket = useMutation({
     mutationFn: async (updates: Partial<Ticket>) => {
-      const response = await apiRequest('PUT', `/api/tickets/${ticket.id}`, updates);
-      return response.json();
+      return apiRequest('PUT', `/api/tickets/${ticket.id}`, updates);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/tickets'] });
@@ -52,11 +51,25 @@ export function TicketDetails({ ticket, customer, onClose }: TicketDetailsProps)
   };
 
   const handleStatusUpdate = (newStatus: string) => {
-    updateTicket.mutate({ status: newStatus });
+    updateTicket.mutate({ status: newStatus }, {
+      onSuccess: () => {
+        toast({
+          title: "Status Updated",
+          description: `Ticket status changed to ${newStatus}.`
+        });
+      }
+    });
   };
 
   const handlePriorityUpdate = (newPriority: string) => {
-    updateTicket.mutate({ priority: newPriority });
+    updateTicket.mutate({ priority: newPriority }, {
+      onSuccess: () => {
+        toast({
+          title: "Priority Updated", 
+          description: `Ticket priority changed to ${newPriority}.`
+        });
+      }
+    });
   };
 
   const handleAddComment = () => {
