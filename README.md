@@ -5,7 +5,7 @@ A comprehensive ERP/CRM integration platform with AI-powered customer support, r
 https://erp-crm-integrator-augustineogelo.replit.app/
  
 ![ERP / CRM Integration APp](screenshots/dashboard.png)
- 
+  
 ![Dashboard Preview](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue)
 ![React](https://img.shields.io/badge/React-18+-blue)
