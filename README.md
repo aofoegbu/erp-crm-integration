@@ -80,7 +80,7 @@ https://erp.ogelollm.app
 
 2. **Set up environment variables:**
    - `GEMINI_API_KEY` - Get your free API key from [Google AI Studio](https://ai.google.dev/)
-   - `DATABASE_URL` - PostgreSQL connection string (automatically configured on Replit)
+   - `DATABASE_URL` - PostgreSQL connection string 
 
 3. **Start the development server:**
    ```bash
@@ -272,8 +272,8 @@ For enhanced production deployment:
 4. Implement rate limiting and security headers
 5. Set up CI/CD pipelines for automated deployment
 
-### Replit Deployment
-The application is optimized for Replit:
+### Deployment
+The application is optimized for deployment:
 - No Docker or containerization needed
 - Automatic dependency management
 - Built-in secret management
@@ -351,4 +351,3 @@ For support and questions:
 
 ---
 
-**Built with ❤️ using modern web technologies and free AI services.**
