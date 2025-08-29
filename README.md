@@ -317,13 +317,7 @@ wscat -c ws://localhost:5000/ws
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
 
-For support and questions:
-- Check the API documentation above
-- Review the troubleshooting section
-- Open an issue on GitHub
-- Contact the development team
 
 ## 🎯 Roadmap
 
